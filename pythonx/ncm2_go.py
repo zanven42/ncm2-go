@@ -43,18 +43,11 @@ class Source(Ncm2Source):
         bcol = ctx['bcol']
         typed = ctx['typed']
         filepath = ctx['filepath']
-        startccol = ctx['startccol'] 
-        m = comp_pat.search(typed)
-        if m:
-            s,e = m.span()
-            # lnum = lnum - (len(typed) - s)
+        startccol = ctx['startccol']
+        paramMatch = comp_pat.search(lines[lnum-1])
+        if paramMatch:
+            s,e = paramMatch.span()
             ccol = ccol - (len(lines[lnum-1]) - s) + 1
-            # startccol = startccol - (len(lines[lnum-1]) - s)+1
-            # matches = [
-                # dict(word='', empty=1, abbr=str(e), dup=1),
-            # ]
-            # self.complete(ctx, startccol, matches)
-            # return
 
         src = src.encode('utf-8')
         offset = self.lccol2pos(lnum, ccol, src)
@@ -76,19 +69,18 @@ class Source(Ncm2Source):
             return
 
         completions = result[1]
-        if m:
+        if paramMatch:
             if len(completions) > 0:
-                t = completions[0].get('type','')
-            matches = [
-                dict(word='',empty=1,dup=1,abbr=t),
-            ]
-            self.complete(ctx, startccol, matches)
-            return
+                if completions[0].get('class','') == 'func':
+                    t = completions[0].get('type','')
+                    matches = [dict(word='',empty=1,dup=1,abbr=t)]
+                    self.complete(ctx, startccol, matches)
+                    return
 
         startbcol = bcol - result[0]
         startccol = len(typed.encode()[: startbcol-1]) + 1
 
-        if startbcol == bcol and re.match(r'\w', ctx['typed'][-1]) and not m:
+        if startbcol == bcol and re.match(r'\w', ctx['typed'][-1]) and not paramMatch:
             # workaround gocode bug when completion is triggered in a
             # golang string
             return
