@@ -14,7 +14,7 @@ let g:ncm2_go#source = extend(
             \ 'subscope_enable': 1,
             \ 'scope': ['go'],
             \ 'word_pattern': '[\w/]+',
-            \ 'complete_pattern': ['\.', '::'],
+            \ 'complete_pattern': ['\.', '::','\(\s?',',\s?'],
             \ 'on_complete': 'ncm2_go#on_complete',
             \ 'on_warmup': 'ncm2_go#on_warmup',
             \ }, 'keep')
